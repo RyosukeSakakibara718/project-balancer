@@ -37,11 +37,10 @@ services:
     environment:
       POSTGRES_USER: username
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: postgres
-      TZ: 'Asia/Tokyo'
+      POSTGRES_DB: project_balancer_local
     networks:
       - net1
     ports:
-      - 3306:3306
+      - 5432:5432
 networks:
   net1:
