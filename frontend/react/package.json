@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "format": "prettier --write .",
     "lint:watch": "chokidar 'src/**/*.{ts,tsx}' -c 'npm run lint'",
-    "start": "run-p dev lint:watch"
+    "start": "run-p dev lint:watch",
     "test": "vitest"
   },
   "dependencies": {
