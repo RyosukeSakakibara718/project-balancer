@@ -12,9 +12,10 @@ class ExampleController extends Controller
     public function divide(int $a, int $b): float
     {
         if ($b === 0) {
-            return "division by zero"; // 返り値で定義しているfloatではなく、stringを返すのでエラーになる
+            return 'division by zero'; // 返り値で定義しているfloatではなく、stringを返すのでエラーになる
             // throw new \InvalidArgumentException('Division by zero');
         }
+
         return $a / $b;
     }
 
@@ -27,5 +28,5 @@ class ExampleController extends Controller
     // {
     //     return "検証用";
     // }
-    
+
 }
