@@ -29,8 +29,8 @@ class MemberController extends Controller
 
         return response()->json([
             'members' => MemberResource::collection($members),
-            'next_cursor' => $members->nextCursor(),
-            'previous_cursor' => $members->previousCursor(),
+            'next_cursor' => $members->nextCursor() ? $members->nextCursor()->encode() : null,
+            'previous_cursor' => $members->previousCursor() ? $members->previousCursor()->encode() : null,
         ], 200);
     }
 

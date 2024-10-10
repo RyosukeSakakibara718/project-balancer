@@ -35,8 +35,8 @@ class ProjectController extends Controller
         // 直接返す
         return response()->json([
             'projects' => ProjectResource::collection($projects),
-            'next_cursor' => $projects->nextCursor(),
-            'previous_cursor' => $projects->previousCursor(),
+            'next_cursor' => $projects->nextCursor() ? $projects->nextCursor()->encode() : null,
+            'previous_cursor' => $projects->previousCursor() ? $projects->previousCursor()->encode() : null,
         ], 200);
     }
 

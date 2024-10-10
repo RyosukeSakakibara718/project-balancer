@@ -16,7 +16,7 @@ class IndexAction
             $query->where('name', 'like', '%' . $searchQuery['name'] . '%');
         }
 
-        $members = $query->cursorPaginate(10, ['*'], 'cursor', $cursor);
+        $members = $query->orderby('id')->cursorPaginate(10, ['*'], 'cursor', $cursor);
 
         return $members;
     }
