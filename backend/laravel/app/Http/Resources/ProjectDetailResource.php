@@ -16,7 +16,6 @@ class ProjectDetailResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-
         return [
             'project' => [
                 'projects_data' => [
@@ -33,12 +32,8 @@ class ProjectDetailResource extends JsonResource
                     "estimate_cost" => $this->estimation->estimate_cost,
                     "estimate_person_month" => $this->estimation->estimate_person_month,
                 ],
-                'assignment_members' => [
-                    AssignmentMemberResource::collection($this->assignmentMembers),
-                ],
-                'outsources' => [
-                    OutsourceResource::collection($this->outsources),
-                ]
+                'assignment_members' => AssignmentMemberResource::collection($this->assignmentMembers),
+                'outsources' => OutsourceResource::collection($this->outsources),
             ],
         ];
     }
