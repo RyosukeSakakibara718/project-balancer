@@ -50,6 +50,11 @@ class WorkCost extends Model
         'work_date',
     ];
 
+    protected $casts = [
+        // データベース保存時は Y-m-d 形式
+        'work_date' => 'date:Y-m-d',
+    ];
+
     // リレーション: WorkCost は Project に属する
     public function project()
     {
@@ -60,5 +65,11 @@ class WorkCost extends Model
     public function assignmentMember()
     {
         return $this->belongsTo(AssignmentMember::class);
+    }
+
+    // アクセサ: work_date を Y/m/d 形式で表示
+    public function getWorkDateAttribute($value)
+    {
+        return \Carbon\Carbon::parse($value)->format('Y/m/d');
     }
 }

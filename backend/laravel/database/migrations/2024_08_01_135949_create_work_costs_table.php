@@ -21,6 +21,9 @@ return new class extends Migration
             $table->date('work_date')->comment('作業日');
             $table->timestamps();
             $table->timestamp('deleted_at')->nullable();
+
+            // 一意キーを追加（project_id、assignment_member_id、work_dateの組み合わせを一意にする）
+            $table->unique(['project_id', 'assignment_member_id', 'work_date']);
         });
 
         // laravelでPostgresSQLのinterval型を生成するメソッドがないので直接生成
