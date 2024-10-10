@@ -36,6 +36,16 @@ export type Estimation = {
   order_price: number;
 };
 
+export type GraphDataProps = {
+  graph: Graph[];
+};
+
+export type Graph = {
+  target_month: string;
+  achievement_cost: number;
+  estimate_cost: number;
+};
+
 export type HomeComment = {
   id: number;
   comment: string;
@@ -47,11 +57,19 @@ export type HomeCommentProps = {
   projectId: number;
 };
 
-export type Project ={
+export type Project = {
   id: number;
   name: string;
   freee_project_code: string;
   start_date: string;
   end_date: string;
   project_manager: string;
-}
+};
+
+export type SummaryProps = {
+  total_estimate_cost: number;
+  total_achievement_cost: number;
+  achievement_person_month: number;
+  Remaining_person_month: number;
+  graph: Graph[];
+};

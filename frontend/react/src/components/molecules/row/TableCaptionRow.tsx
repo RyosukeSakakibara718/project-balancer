@@ -36,8 +36,7 @@ const TableCaptionRow: React.FC<TableCaptionRowProps> = ({
 
   const handleDeleteClick = () => {
     // TODOここでコメント削除API
-    alert("削除しました。")
-    
+    alert("削除しました。");
   };
   return (
     <tr>

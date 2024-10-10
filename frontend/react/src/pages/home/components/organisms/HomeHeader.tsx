@@ -1,11 +1,11 @@
 import BigSelectBox from "../../../../components/atoms/box/BigSelectBox";
 import { Project } from "../../../../types/home";
 
-interface HomeHeaderProps {
+type HomeHeaderProps = {
   projects: Project[];
   handleSelectChange: (value: string) => void;
   selectedProject: string;
-}
+};
 
 const HomeHeader = ({
   projects,

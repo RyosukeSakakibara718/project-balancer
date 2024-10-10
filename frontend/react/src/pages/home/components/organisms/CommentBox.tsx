@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
+
 import TableCaptionRow from "../../../../../src/components/molecules/row/TableCaptionRow";
-import TextArea from "../../../../components/atoms/box/TextArea";
-import { HomeComment, HomeCommentProps } from "../../../../types/home";
-import Spacer from "../../../../components/atoms/Spacer";
 import { getHomeComment } from "../../../../api/homeComment";
+import TextArea from "../../../../components/atoms/box/TextArea";
+import Spacer from "../../../../components/atoms/Spacer";
+import { HomeComment, HomeCommentProps } from "../../../../types/home";
 
 const CommentBox = ({ projectId }: HomeCommentProps) => {
   /**
@@ -37,8 +38,8 @@ const CommentBox = ({ projectId }: HomeCommentProps) => {
   const handleCommentChange = (id: number, newComment: string) => {
     setHomeComment(prevComments =>
       prevComments.map(comment =>
-        comment.id === id ? { ...comment, comment: newComment } : comment
-      )
+        comment.id === id ? { ...comment, comment: newComment } : comment,
+      ),
     );
   };
 
@@ -65,16 +66,18 @@ const CommentBox = ({ projectId }: HomeCommentProps) => {
                   isHome={true}
                   isEdit={editStates[comment.id]}
                   setIsEdit={() => toggleEditState(comment.id)}
-                  />
+                />
               </thead>
               <tbody>
                 <tr>
                   <td className="p-4">
                     <TextArea
                       value={comment.comment}
-                      onChange={e => handleCommentChange(comment.id, e.target.value)}
+                      onChange={e =>
+                        handleCommentChange(comment.id, e.target.value)
+                      }
                       isEdit={editStates[comment.id]}
-                      />
+                    />
                   </td>
                 </tr>
               </tbody>

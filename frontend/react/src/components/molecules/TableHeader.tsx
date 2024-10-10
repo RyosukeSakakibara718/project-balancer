@@ -10,7 +10,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({ columns }) => {
   return (
     <tr>
       {columns?.map((column, index) => (
-        <TableHeaderColumn key={index} width="5" value={column}/>
+        <TableHeaderColumn key={index} width="5" value={column} />
       ))}
     </tr>
   );

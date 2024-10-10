@@ -1,6 +1,6 @@
 import TableTd from "../../../../../components/atoms/field/TableTd";
-import { MemberInfoDataProps } from "../../../../../types/home";
 import { RANK } from "../../../../../constants/index";
+import { MemberInfoDataProps } from "../../../../../types/home";
 
 const MemberInfoRow = ({ MembersData }: MemberInfoDataProps) => {
   /**
