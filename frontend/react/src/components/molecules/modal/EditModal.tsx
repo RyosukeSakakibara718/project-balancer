@@ -39,40 +39,42 @@ const EditModal: React.FC<MemberTableProps> = ({
    */
 
   return (
-    <div className="bg-white shadow-lg rounded-lg p-6">
-      <div className="flex">
-        <p className="text-2xl font-extrabold px-5">編集</p>
-      </div>
-      <div className="mx-5 grid shadow-lg rounded-lg overflow-hidden">
-        <table className="min-w-full border-collapse">
-          <thead>
-            <TableHeader />
-          </thead>
-          <tbody>
-            {editData && (
-              <EditTableRow
-                id={editData.id}
-                name={editData.name}
-                rank={editData.rank}
-                base_cost={editData.base_cost}
-                base_cost_start_date={editData.base_cost_start_date}
-                onValueChange={handleValueChange}
-              />
-            )}
-          </tbody>
-        </table>
-      </div>
-      <Spacer height="30px" />
-      <div className="flex justify-center">
-        <div className="flex space-x-4">
-          <DecideButton
-            onClose={() => onClose()}
-            handleSubmitEditData={handleSubmitEditData}
-          />
-          <CancelButton onClose={() => onClose()} />
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+      <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-3xl mx-auto">
+        <div className="mb-4 text-left">
+          <p className="text-2xl font-extrabold px-5">編集</p>
         </div>
+        <div className="mx-5 grid shadow-lg rounded-lg overflow-hidden">
+          <table className="min-w-full border-collapse">
+            <thead>
+              <TableHeader />
+            </thead>
+            <tbody>
+              {editData && (
+                <EditTableRow
+                  id={editData.id}
+                  name={editData.name}
+                  rank={editData.rank}
+                  base_cost={editData.base_cost}
+                  base_cost_start_date={editData.base_cost_start_date}
+                  onValueChange={handleValueChange}
+                />
+              )}
+            </tbody>
+          </table>
+        </div>
+        <Spacer height="30px" />
+        <div className="flex justify-center">
+          <div className="flex space-x-4">
+            <DecideButton
+              onClose={() => onClose()}
+              handleSubmitEditData={handleSubmitEditData}
+            />
+            <CancelButton onClose={() => onClose()} />
+          </div>
+        </div>
+        <Spacer height="20px" />
       </div>
-      <Spacer height="20px" />
     </div>
   );
 };

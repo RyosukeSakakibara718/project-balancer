@@ -146,14 +146,14 @@ const MemberTable: React.FC = () => {
    * @param {string} fieldName - 変更する値のフィールド
    * @param {string | number} value - 変更する値
    */
-  const handleValueChange = (fieldName: string, value: string | number) => {
+  const handleValueChange = (fieldName: string, value: string | number | Date) => {
     setTargetData(prevData => ({
       ...prevData,
       [fieldName]: value, // フィールド名をキーとして、新しい値をセット
     }));
   };
 
-  const handleAddValueChange = (fieldName: string, value: string | number) => {
+  const handleAddValueChange = (fieldName: string, value: string | number | Date) => {
     setAddData(prevData => ({
       ...prevData,
       [fieldName]: value, // フィールド名をキーとして、新しい値をセット
