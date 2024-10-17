@@ -3,12 +3,12 @@ import { useEffect, useState } from "react";
 import { RANK } from "../../../../../constants";
 import { getMemberAll } from "../../../../../hooks/useMember";
 import {
-  OptionList,
   optionsArrayProps,
   Period,
   ProjectsAchievementsMember,
 } from "../../../../../types/project";
 import { countBusinessDaysInMonth } from "../../../../../utils/projectsAchievements";
+import { MemberData } from "../../../../../types/member";
 
 type ProjectArchiveBodyProps = {
   showPeriod: Period[];
@@ -27,7 +27,7 @@ const ProjectArchiveBody: React.FC<ProjectArchiveBodyProps> = ({
   onWorkTimeChange,
   between,
 }) => {
-  const [memberList, setMemberList] = useState<OptionList[]>();
+  const [memberList, setMemberList] = useState<MemberData[]>();
 
   useEffect(() => {
     getMemberAll()

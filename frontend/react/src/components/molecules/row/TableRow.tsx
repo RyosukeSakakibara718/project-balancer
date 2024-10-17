@@ -29,7 +29,7 @@ const TableRow: React.FC<TableRowProps> = ({
       <TableRowColumn width="25%">{base_cost_start_date}</TableRowColumn>
       <TableRowColumn width="10%">
         <div className="flex space-x-2.5">
-          <EditButton onOpen={isEditModalOpen} id={id} />
+          <EditButton onOpen={isEditModalOpen}/>
           <DeleteButton onOpen={isDeleteModalOpen} id={id} />
         </div>
       </TableRowColumn>

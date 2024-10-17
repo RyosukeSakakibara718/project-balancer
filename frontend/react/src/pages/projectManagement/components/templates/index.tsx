@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import AddOpenButton from "../../../../components/atoms/button/AddOpenButton";
@@ -10,7 +10,7 @@ import {
   PROJEÇT_MANAGEMENT_MODAL_COLUMNS,
 } from "../../../../constants/index";
 import { getProjectsAll, deleteProjects } from "../../../../hooks/useProjects";
-import { ProjectData, ProjectDataProps } from "../../../../types/project";
+import { ProjectData } from "../../../../types/project";
 import DeleteModal from "../molecules/modal/DeleteModal";
 import TableRow from "../molecules/row/TableRow";
 import Loading from "../../../../components/molecules/Loading";
@@ -23,11 +23,12 @@ import Loading from "../../../../components/molecules/Loading";
  * @param {Array} props.data - メンバーのデータリスト。
  * @returns {JSX.Element} ProjectManagementコンポーネントを返します。
  */
-const ProjectManagement: React.FC<ProjectDataProps> = ({ data }) => {
+const ProjectManagement= () => {
   // TODO PMの中身実装
-  const [showData, setShowData] = useState<ProjectData[]>(data);
+  const [showData, setShowData] = useState<ProjectData[]>([]);
   const [projectsData, setProjectsData] = useState<ProjectData[]>([]);
   const [searchValue, setSearchValue] = useState("");
+  const [originalData, setOriginalData] = useState<ProjectData[]>([]);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
@@ -40,6 +41,7 @@ const ProjectManagement: React.FC<ProjectDataProps> = ({ data }) => {
         if (projects !== null) {
           setProjectsData(projects);
           setShowData(projects);
+          setOriginalData(projects)
         }
         setLoading(false); // ローディングを終了
       })
@@ -97,7 +99,7 @@ const ProjectManagement: React.FC<ProjectDataProps> = ({ data }) => {
    * 検索条件に一致するメンバーをフィルタリング
    * @returns {Array} フィルタリングされたメンバーリスト
    */
-  const filteredMembers = data.filter(member =>
+  const filteredMembers = showData.filter(member =>
     Object.values(member).some(value =>
       value.toString().toLowerCase().includes(searchValue.toLowerCase()),
     ),
@@ -114,7 +116,7 @@ const ProjectManagement: React.FC<ProjectDataProps> = ({ data }) => {
    * 検索結果をクリアし、すべてのメンバーを表示
    */
   const clearShowData = () => {
-    setShowData(data);
+    setShowData(originalData);
     setSearchValue("");
   };
 

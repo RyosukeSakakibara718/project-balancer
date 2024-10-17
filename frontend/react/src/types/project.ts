@@ -12,8 +12,8 @@ export type ProjectDataProps = {
 
 export type OptionList = {
   id: number;
-  name: string;
   label: string;
+  name?: string;
 };
 
 export type InitialProjectInfo = {

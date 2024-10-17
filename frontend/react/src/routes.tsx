@@ -1,7 +1,6 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
-import { sampleProjectData } from "./data/projects";
 import Home from "./pages/home/components/templates";
 import Login from "./pages/login/components/templates";
 import MemberTable from "./pages/memberManagement/components/templates";
@@ -19,7 +18,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/memberManagement" element={<MemberTable />} />
       <Route
         path="/projectManagement"
-        element={<ProjectManagement data={sampleProjectData} />}
+        element={<ProjectManagement />}
       />
       <Route
         path="/projectManagement/detail/:id?"
