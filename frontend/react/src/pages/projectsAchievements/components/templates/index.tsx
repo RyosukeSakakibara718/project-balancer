@@ -15,10 +15,14 @@ import {
   ProjectAchievementsData,
   WorkCost,
   Period,
+  OptionList,
+  ProjectData
 } from "../../../../types/project";
 import { countBusinessDaysInMonth } from "../../../../utils/projectsAchievements";
 import ProjectArchiveBody from "../molecules/row/ProjectArchiveBody";
 import ProjectArchiveHeader from "../molecules/row/ProjectArchiveHeader";
+import { getProjectsAll } from "../../../../hooks/useProjects";
+import { getProjectsAchievements } from "../../../../hooks/useProjectsAchievements";
 import BigSelectBox from "../../../../components/atoms/box/BigSelectBox";
 
 const ProjectsAchievements = () => {
@@ -44,6 +48,51 @@ const ProjectsAchievements = () => {
   const endIndex = startIndex + itemsPerPage;
   const currentDates = Period.slice(startIndex, endIndex);
   const [showPeriod, setShowPeriod] = useState(currentDates);
+  const [projectList, setProjectList] = useState<OptionList[]>(ProjectName)
+  const [ currentProject, setCurrentProject ] = useState<OptionList>()
+
+  getProjectsAll()
+    .then(projects => {
+      if (projects !== null) {
+        const ProjectName = (projects as ProjectData[]).map(project => ({
+          id: project.id,
+          name: project.name,
+          label: project.name
+        }))
+        setProjectList(ProjectName)
+      }
+    })
+    .catch(error => {
+      console.error("Error fetching member data:", error);
+    });
+
+  useEffect(() => {
+    // getProjectsAchievements()
+  },[])
+
+  const handleSelectChange = (selectedLabel: string) => {
+    const selectedProject = projectList.find(option => option.label === selectedLabel);
+    if (selectedProject) {
+      setCurrentProject(selectedProject); // 選択されたプロジェクトをstateに保存
+    }
+  };
+
+
+  useEffect(() => {
+    if(currentProject?.id) {
+      getProjectsAchievements(currentProject.id)
+      .then(project => {
+        if (project !== null) {
+          console.log('project: ', project);
+          
+          // setProjectData(projects)
+        }
+      })
+      .catch(error => {
+        console.error("Error fetching member data:", error);
+      });
+    }
+  },[currentProject])
 
   // 稼働時間の入力に応じて日付・稼働時間・金額を管理するstateを更新する関数
   const handleWorkCostChange = (
@@ -420,7 +469,7 @@ const ProjectsAchievements = () => {
     <>
       <Spacer height="40px" />
       <div className="text-left">
-        <BigSelectBox optionArray={ProjectName} handleSelectChange={() => {}} />
+        <BigSelectBox optionArray={projectList} handleSelectChange={handleSelectChange}/>
       </div>
       <Spacer height="20px" />
       <div className="text-right">

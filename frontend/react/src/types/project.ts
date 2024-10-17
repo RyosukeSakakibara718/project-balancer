@@ -1,6 +1,7 @@
 export type ProjectData = {
   id: number;
   name: string;
+  freee_project_code? :string;
   start_date: string;
   end_date: string;
   project_manager: string;
