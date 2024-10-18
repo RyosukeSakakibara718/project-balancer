@@ -1,5 +1,5 @@
 export const projectDetailData = {
-  projects: {
+  project: {
     projects_data: {
       name: "プロジェクトバランサー",
       phase: 1,

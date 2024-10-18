@@ -1,6 +1,7 @@
 export type ProjectData = {
   id: number;
   name: string;
+  freee_project_code? :string;
   start_date: string;
   end_date: string;
   project_manager: string;
@@ -88,14 +89,6 @@ export type RequestBody = {
   };
 };
 
-export type WorkCost = {
-  daily_cost: number;
-  work_time: number;
-  work_date: string;
-  work_week?: string;
-  work_month?: string;
-};
-
 export type optionsArrayProps = {
   id: number;
   label: string;
@@ -106,23 +99,32 @@ export type Period = {
   day: string;
 };
 
-export type AssignmentMember = {
-  assignment_member_id: number;
-  position: number;
-  base_cost: number;
-  work_costs: WorkCost[]; // never[]ではなく、適切な型にする
-};
-
-export type ProjectAchievementsData = {
-  projects: {
-    projects_id: number;
-    assignment_members: AssignmentMember[];
-  };
-};
-
 export type ProjectsAchievementsMember = {
-  assignment_member_id: number;
+  member_id: number;
   position: number;
   base_cost: number;
   work_costs: WorkCost[];
+};
+
+export type WorkCost = {
+  id?: number; // optionalにしておく
+  daily_cost: number;
+  work_time: string; // 元データでwork_timeはstringなので修正
+  work_date: string;
+  work_week?: string;
+  work_month?: string;
+};
+
+export type AssignmentMember = {
+  member_id: number; // assignment_member_idをmember_idに変更
+  position: number;
+  base_cost: number;
+  work_costs: WorkCost[];
+};
+
+export type ProjectAchievementsData = {
+  project: { // projectsをprojectに変更
+    id: number; // projects_idをidに変更
+    assignment_members: AssignmentMember[];
+  };
 };

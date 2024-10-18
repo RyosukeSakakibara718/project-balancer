@@ -7,7 +7,7 @@ import Spacer from "../../../../components/atoms/Spacer";
 import { OPTIONS_ARRAY } from "../../../../constants";
 import { projectDetailData } from "../../../../data/projectDetail";
 import {
-  sampleProjectArchivementsData,
+  sampleProjectAchievementsData,
   ProjectName,
   initialBetween,
 } from "../../../../data/projectsArchivements";
@@ -17,95 +17,177 @@ import {
   ProjectAchievementsData,
   WorkCost,
   Period,
+  OptionList,
+  ProjectData,
 } from "../../../../types/project";
 import { countBusinessDaysInMonth } from "../../../../utils/projectsAchievements";
 import ProjectArchiveBody from "../molecules/row/ProjectArchiveBody";
 import ProjectArchiveHeader from "../molecules/row/ProjectArchiveHeader";
+import { getProjectManagementDetail } from "../../../projectManagementDetail/api/useProjectManagementDetail";
+import { getProjectsAll } from "../../../../hooks/useProjects";
+import { getProjectsAchievements } from "../../api/useProjectsAchievements";
 
 const ProjectsAchievements = () => {
   const [projectData, setProjectData] = useState<ProjectAchievementsData>(
-    sampleProjectArchivementsData,
+    sampleProjectAchievementsData,
   );
-  /**
-   * 特定の案件のメンバー別の日単位の日単位の稼働時間の登録/編集ができる。
-   * 特定の案件のメンバー別の日/週/月単位の稼働時間と金額を確認できる。
-   *
-   * @component
-   * @param {ProjectsAchievements} props - コンポーネントに渡されるプロパティ。
-   * @returns {JSX.Element} ProjectsAchievementsコンポーネントを返します。
-   */
+
   const [between, setBetween] = useState<optionsArrayProps>(initialBetween);
   const [currentPage, setCurrentPage] = useState(0);
-  const Period = getDatesBetween(
-    projectDetailData.projects.projects_data.start_date,
-    projectDetailData.projects.projects_data.end_date,
-  );
+
   const itemsPerPage = 7;
   const startIndex = currentPage * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
+  const [projectList, setProjectList] = useState<OptionList[]>(ProjectName);
+  const [currentProject, setCurrentProject] = useState<OptionList>();
+  const [currentProjectDetail, setCurrentProjectDetail] =
+    useState(projectDetailData);
+
+  useEffect(() => {
+    getProjectsAll()
+      .then(projects => {
+        if (projects !== null) {
+          const ProjectName = (projects as ProjectData[]).map(project => ({
+            id: project.id,
+            name: project.name,
+            label: project.name,
+          }));
+          setProjectList(ProjectName);
+          setCurrentProject(ProjectName[0]);
+        }
+      })
+      .catch(error => {
+        console.error("Error fetching member data:", error);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (currentProject) {
+      getProjectsAchievements(currentProject.id).then(Achievements => {
+      });
+    }
+  }, [currentProject]);
+
+  const handleSelectChange = (selectedLabel: string) => {
+    const selectedProject = projectList.find(
+      option => option.label === selectedLabel,
+    );
+    if (selectedProject) {
+      setCurrentProject(selectedProject); // 選択されたプロジェクトをstateに保存
+    }
+  };
+
+  const getSundayOfWeek = (date: string) => {
+    const dateObj = new Date(date);
+    const dayOfWeek = dateObj.getDay();
+    const diff = dayOfWeek === 0 ? 0 : dayOfWeek;
+    const sundayDate = new Date(dateObj);
+    sundayDate.setDate(dateObj.getDate() - diff + 1);
+    return sundayDate.toISOString().split("T")[0];
+  };
+
+  const getMonthYear = (date: string) => {
+    const dateObj = new Date(date);
+    const year = dateObj.getFullYear();
+    const month = (dateObj.getMonth() + 1)
+      .toString()
+      .padStart(2, "0");
+    return `${year}/${month}`;
+  };
+
+  useEffect(() => {
+    if (currentProject?.id) {
+      getProjectsAchievements(currentProject.id)
+        .then(project => {
+          if (project !== null) {
+            // projectデータを加工してからsetProjectDataを呼び出す
+            const updatedProject = {
+              ...project,
+              project: {
+                ...project.project,
+                assignment_members: project.project.assignment_members.map(
+                  member => {
+                    return {
+                      ...member,
+                      work_costs: member.work_costs.map(workCost => {
+                        const workWeek = getSundayOfWeek(workCost.work_date);
+                        const workMonth = getMonthYear(workCost.work_date);
+                        return {
+                          ...workCost,
+                          work_week: workWeek,
+                          work_month: workMonth,
+                        };
+                      }),
+                    };
+                  },
+                ),
+              },
+            };
+
+            setProjectData(updatedProject);
+          }
+        })
+        .catch(error => {
+          console.error("Error fetching member data:", error);
+        });
+      getProjectManagementDetail(String(currentProject?.id))
+        .then(projectDetail => {
+          if (projectDetail !== null) {
+            setCurrentProjectDetail(projectDetail);
+          }
+        })
+        .catch(error => {
+          console.error("Error fetching member data:", error);
+        });
+    }
+  }, [currentProject]);
+
+  const Period = getDatesBetween(
+    currentProjectDetail.project.projects_data.start_date,
+    currentProjectDetail.project.projects_data.end_date,
+  );
+
   const currentDates = Period.slice(startIndex, endIndex);
   const [showPeriod, setShowPeriod] = useState(currentDates);
 
-  // 稼働時間の入力に応じて日付・稼働時間・金額を管理するstateを更新する関数
+  const convertWorkTimeToDecimal = (workTime: string): number => {
+    const [hours, minutes] = workTime.split(":").map(Number); // 時間と分を分解して数値に変換
+    return hours + minutes / 60; // 時間と分を小数形式に変換
+  };
+
   const handleWorkCostChange = (
     memberId: number,
     workDate: string,
-    workTime: number,
+    workTime: string,
   ) => {
     setProjectData(prevData => {
       return {
         ...prevData,
-        projects: {
-          ...prevData.projects,
-          assignment_members: prevData.projects.assignment_members.map(
+        project: {
+          ...prevData.project,
+          assignment_members: prevData.project.assignment_members.map(
             member => {
-              // 対象のメンバーを探す
-              if (member.assignment_member_id === memberId) {
-                // 対応する営業日数を取得
+              if (member.member_id === memberId) {
                 const businessDays = countBusinessDaysInMonth(workDate);
-
-                // daily_cost を計算する
+                const workTimeDecimal: number =
+                  convertWorkTimeToDecimal(workTime);
                 const dailyCost = Math.ceil(
-                  (member.base_cost / businessDays) * workTime,
+                  (member.base_cost / businessDays) * workTimeDecimal,
                 );
 
-                // `work_week` を計算するための関数（その週の日曜日を取得する）
-                // `work_week` を計算するための関数（その週の日曜日を取得する）
-                const getSundayOfWeek = (date: string) => {
-                  const dateObj = new Date(date);
-                  const dayOfWeek = dateObj.getDay();
-                  const diff = dayOfWeek === 0 ? 0 : dayOfWeek; // 日曜日ならその日を返す、他の曜日ならその前の日曜日まで戻る
-                  const sundayDate = new Date(dateObj);
-                  sundayDate.setDate(dateObj.getDate() - diff + 1); // 前の日曜日の日付を設定
-                  return sundayDate.toISOString().split("T")[0]; // "YYYY-MM-DD" の形式で返す
-                };
+                const workWeek = getSundayOfWeek(workDate);
+                const workMonth = getMonthYear(workDate);
 
-                // `work_month` を計算するための関数 (月の部分だけ "YYYY/MM" 形式で返す)
-                const getMonthYear = (date: string) => {
-                  const dateObj = new Date(date);
-                  const year = dateObj.getFullYear();
-                  const month = (dateObj.getMonth() + 1)
-                    .toString()
-                    .padStart(2, "0"); // 月を2桁にフォーマット
-                  return `${year}/${month}`; // "YYYY/MM" 形式で返す
-                };
-
-                const workWeek = getSundayOfWeek(workDate); // 日曜日の日付を取得
-                const workMonth = getMonthYear(workDate); // 月の部分だけを取得
-
-                // 既存の work_costs を確認して、同じ日付があるかどうかをチェック
                 const existingCostIndex = member.work_costs.findIndex(
                   cost => cost.work_date === workDate,
                 );
 
-                // 同じ日付のエントリが見つかった場合は更新、そうでなければ追加
                 if (existingCostIndex !== -1) {
-                  // 日付が見つかった場合は、その要素を更新する
                   const updatedWorkCosts = member.work_costs
                     .map((cost, index) => {
                       if (index === existingCostIndex) {
-                        // work_time が 0 の場合、null に設定することで削除を示す
-                        return workTime === 0
+                        const workTimeDecimal = convertWorkTimeToDecimal(workTime)
+                        return workTimeDecimal === 0
                           ? null
                           : {
                               ...cost,
@@ -115,30 +197,29 @@ const ProjectsAchievements = () => {
                       }
                       return cost;
                     })
-                    .filter(Boolean) as WorkCost[]; // null を取り除く
+                    .filter(Boolean) as WorkCost[];
 
                   return {
                     ...member,
-                    work_costs: updatedWorkCosts, // WorkCost[] に null が含まれない
+                    work_costs: updatedWorkCosts,
                   };
-                } else if (workTime !== 0) {
-                  // work_time が 0 ではない場合にのみ新しいエントリを追加
+                } else if (workTimeDecimal !== 0) {
                   return {
                     ...member,
                     work_costs: [
                       ...member.work_costs,
                       {
-                        daily_cost: dailyCost, // 計算したコスト
+                        daily_cost: dailyCost,
                         work_time: workTime,
                         work_date: workDate,
-                        work_week: workWeek, // 日曜日の日時
-                        work_month: workMonth, // 月の部分だけ (YYYY/MM)
+                        work_week: workWeek,
+                        work_month: workMonth,
                       },
                     ],
                   };
                 }
               }
-              return member; // 該当しないメンバーはそのまま返す
+              return member;
             },
           ),
         },
@@ -146,40 +227,34 @@ const ProjectsAchievements = () => {
     });
   };
 
-  // 期間セレクトボックスの値を管理するstateを更新する関数
   const handleChangeBetween = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedId = Number(e.target.value);
     const selectedOption = OPTIONS_ARRAY.find(
       option => option.id === selectedId,
     );
     if (selectedOption) {
-      setBetween(selectedOption); // 状態を更新する
+      setBetween(selectedOption);
     }
   };
 
-  // 登録処理
   const handleRegister = () => {
     const updatedProjectData = JSON.parse(JSON.stringify(projectData));
 
-    // リクエスト用の形に整形
-    updatedProjectData.projects.assignment_members.forEach(
+    updatedProjectData.project.assignment_members.forEach(
       (member: AssignmentMember) => {
         member.work_costs.forEach((workCost: WorkCost) => {
-          delete workCost.work_week; // work_week を削除
-          delete workCost.work_month; // work_month を削除
+          delete workCost.work_week;
+          delete workCost.work_month;
         });
       },
     );
     console.log(updatedProjectData);
   };
 
-  // 選択された期間によって表示する日付を変更する関数
   useEffect(() => {
     if (between.id === 1) {
-      // between.id が 1 の場合は日付をそのまま表示
       setShowPeriod(currentDates);
     } else if (between.id === 2) {
-      // between.id が 2 の場合は7日ごとの要素を表示
       setShowPeriod(
         getEvery7thElementFromFirst(Period).slice(startIndex, endIndex),
       );
@@ -188,50 +263,39 @@ const ProjectsAchievements = () => {
     }
   }, [between, currentPage]);
 
-  // 次の1ヶ月分を表示するための関数
   const handleNext = () => {
     if (endIndex < Period.length) {
       setCurrentPage(currentPage + 1);
     }
   };
 
-  // 前の1ヶ月分を表示するための関数
   const handlePrev = () => {
     if (startIndex > 0) {
       setCurrentPage(currentPage - 1);
     }
   };
 
-  // 期間:週毎の際に表示するために7日ごとの要素を取得し、dayOfWeekを8に変更する関数
-  // dayOfWeekを8に変更する → ヘッダーに表示する時の色を管理するため
   function getEvery7thElementFromFirst(arr: Period[]) {
-    console.log(arr);
     return arr
       .filter((_, index) => index % 7 === 0)
       .map(item => ({
         ...item,
-        dayOfWeek: 8, // dayOfWeekを8に強制変更
+        dayOfWeek: 8,
       }));
   }
 
-  // 月ごとの要素を取得し、dayOfWeekを全て8に変更する関数
-  // dayOfWeekを8に変更する → ヘッダーに表示する時の色を管理するため
-  function extractMonths(
-    data: Array<{ dayOfWeek: number; day: string }>,
-  ): Array<{ dayOfWeek: number; day: string }> {
+  function extractMonths(data: Array<{ dayOfWeek: number; day: string }>) {
     const monthsSet = new Set<string>();
     const result: Array<{ dayOfWeek: number; day: string }> = [];
 
     data.forEach(item => {
-      // dayを "yyyy/mm" 形式に変換 (月を二桁にする)
       const [year, month] = item.day.split("/");
-      const formattedMonth = `${year}/${month.padStart(2, "0")}`; // 月が一桁なら0埋め
+      const formattedMonth = `${year}/${month.padStart(2, "0")}`;
 
-      // Setで重複チェック
       if (!monthsSet.has(formattedMonth)) {
         monthsSet.add(formattedMonth);
         result.push({
-          dayOfWeek: 8, // dayOfWeekを8に強制変更
+          dayOfWeek: 8,
           day: formattedMonth,
         });
       }
@@ -287,10 +351,26 @@ const ProjectsAchievements = () => {
     return result;
   }
 
-  const formatWorkWeek = (dateStr: string | undefined) => {
+  // Date型の時間を秒に変換する関数
+  const dateToSeconds = (timeString: string): number => {
+    const [hours, minutes, seconds] = timeString.split(":").map(Number);
+    return hours * 3600 + minutes * 60 + seconds;
+  };
+
+  // 秒を "HH:MM:SS" 形式に変換する関数
+  const secondsToTime = (seconds: number): string => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = seconds % 60;
+    return [hours, minutes, remainingSeconds]
+      .map(unit => String(unit).padStart(2, "0"))
+      .join(":");
+  };
+
+  // "YYYY/MM/DD" 形式にゼロ埋めなしでフォーマットする関数
+  const formatWorkWeek = (dateStr: string | undefined): string | undefined => {
     if (dateStr) {
       const [year, month, day] = dateStr.split("-");
-      // 日付をゼロ埋めなしにしてフォーマット
       const formattedMonth = parseInt(month, 10);
       const formattedDay = parseInt(day, 10);
       return `${year}/${formattedMonth}/${formattedDay}`;
@@ -300,29 +380,34 @@ const ProjectsAchievements = () => {
   const groupByWorkWeek = (projectData: ProjectAchievementsData) => {
     return {
       ...projectData,
-      projects: {
-        ...projectData.projects,
-        assignment_members: projectData.projects.assignment_members.map(
+      project: {
+        ...projectData.project,
+        assignment_members: projectData.project.assignment_members.map(
           (member: AssignmentMember) => {
             const groupedWorkCosts = member.work_costs.reduce(
               (acc: WorkCost[], current: WorkCost) => {
-                console.log("acc: ", acc);
-                console.log("current: ", current);
-
                 // work_week を "YYYY/MM/DD" 形式に変換し、ゼロ埋めなし
                 const formattedWorkWeek = formatWorkWeek(current.work_week);
-
                 const existingGroup = acc.find(
                   (item: WorkCost) => item.work_week === formattedWorkWeek,
                 );
 
                 if (existingGroup) {
                   // 同じ work_week のグループが既にある場合、work_time と daily_cost を加算
-                  existingGroup.work_time += current.work_time;
+                  const existingSeconds = dateToSeconds(
+                    existingGroup.work_time,
+                  );
+                  const currentSeconds = dateToSeconds(current.work_time);
+
+                  const totalSeconds = existingSeconds + currentSeconds;
+                  existingGroup.work_time = secondsToTime(totalSeconds);
                   existingGroup.daily_cost += current.daily_cost;
                 } else {
                   // 新しい work_week の場合は新しいエントリを追加
-                  acc.push({ ...current, work_week: formattedWorkWeek }); // work_week をフォーマット済みのものに置き換える
+                  acc.push({
+                    ...current,
+                    work_week: formattedWorkWeek,
+                  });
                 }
 
                 return acc;
@@ -350,9 +435,9 @@ const ProjectsAchievements = () => {
   const groupByWorkMonth = (projectData: ProjectAchievementsData) => {
     return {
       ...projectData,
-      projects: {
-        ...projectData.projects,
-        assignment_members: projectData.projects.assignment_members.map(
+      project: {
+        ...projectData.project,
+        assignment_members: projectData.project.assignment_members.map(
           (member: AssignmentMember) => {
             const groupedWorkCosts = member.work_costs.reduce(
               (acc: WorkCost[], current: WorkCost) => {
@@ -365,11 +450,20 @@ const ProjectsAchievements = () => {
 
                 if (existingGroup) {
                   // 同じ work_month のグループが既にある場合、work_time と daily_cost を加算
-                  existingGroup.work_time += current.work_time;
+                  const existingSeconds = dateToSeconds(
+                    existingGroup.work_time,
+                  );
+                  const currentSeconds = dateToSeconds(current.work_time);
+
+                  const totalSeconds = existingSeconds + currentSeconds;
+                  existingGroup.work_time = secondsToTime(totalSeconds);
                   existingGroup.daily_cost += current.daily_cost;
                 } else {
                   // 新しい work_month の場合は新しいエントリを追加
-                  acc.push({ ...current, work_month: formattedWorkMonth }); // work_month をフォーマット済みのものに置き換える
+                  acc.push({
+                    ...current,
+                    work_month: formattedWorkMonth,
+                  });
                 }
 
                 return acc;
@@ -421,7 +515,10 @@ const ProjectsAchievements = () => {
     <>
       <Spacer height="40px" />
       <div className="text-left">
-        <BigSelectBox optionArray={ProjectName} handleSelectChange={() => {}} />
+        <BigSelectBox
+          optionArray={projectList}
+          handleSelectChange={handleSelectChange}
+        />
       </div>
       <Spacer height="20px" />
       <div className="text-right">
@@ -442,13 +539,13 @@ const ProjectsAchievements = () => {
             handlePrev={handlePrev}
           />
           {(between.id === 1
-            ? projectData.projects.assignment_members
+            ? projectData.project.assignment_members
             : between.id === 2
-              ? dataGroupedByWeek.projects.assignment_members
-              : dataGroupedByMonth.projects.assignment_members
+              ? dataGroupedByWeek.project.assignment_members
+              : dataGroupedByMonth.project.assignment_members
           ).map(member => (
             <ProjectArchiveBody
-              key={member.assignment_member_id}
+              key={member.member_id}
               showPeriod={showPeriod}
               member={member}
               onWorkTimeChange={handleWorkCostChange}
