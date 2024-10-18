@@ -1,9 +1,10 @@
 import axios from "axios";
+const apiUrl = import.meta.env.VITE_API_URL;
 
 export const getHomeComment = async (ProjectId: number): Promise<any> => {
   try {
     const response = await axios.get(
-      `http://localhost/v1/projects/${ProjectId}/comments`,
+      `${apiUrl}/v1/projects/${ProjectId}/comments`,
     );
 
     return response.data;
@@ -19,7 +20,7 @@ export const createHomeComment = async (
 ): Promise<boolean> => {
   try {
     const response = await axios.post(
-      `http://localhost/v1/projects/${projectId}/comments`,
+      `${apiUrl}/v1/projects/${projectId}/comments`,
       { comment: newComment },
     );
     return response.status === 201;
@@ -35,7 +36,7 @@ export const deleteHomeComment = async (
 ): Promise<boolean> => {
   try {
     await axios.delete(
-      `http://localhost/v1/projects/${projectId}/comments/${commentId}`,
+      `${apiUrl}/v1/projects/${projectId}/comments/${commentId}`,
     );
     return true;
   } catch (error) {
@@ -51,7 +52,7 @@ export const updateHomeComment = async (
 ): Promise<boolean> => {
   try {
     const response = await axios.put(
-      `http://localhost/v1/projects/${projectId}/comments/${commentId}`,
+      `${apiUrl}/v1/projects/${projectId}/comments/${commentId}`,
       { comment: newComment },
     );
     return response.status === 201;

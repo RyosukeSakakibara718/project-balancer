@@ -1,7 +1,8 @@
 import type { MemberData } from "../types/member";
+const apiUrl = import.meta.env.VITE_API_URL;
 
 export const getMemberAll = (): Promise<MemberData[]> => {
-  return fetch("http://localhost/v1/members")
+  return fetch(`${apiUrl}/v1/members`)
     .then(response => {
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -17,7 +18,7 @@ export const editMember = (
   id: number,
   memberData: MemberData,
 ): Promise<boolean> => {
-  return fetch(`http://localhost/v1/members/${id}`, {
+  return fetch(`${apiUrl}/v1/members/${id}`, {
     method: "POST",
     headers: {
       "X-HTTP-Method-Override": "PUT",
@@ -40,7 +41,7 @@ export const editMember = (
 };
 
 export const deleteMember = (id: number): Promise<boolean> => {
-  return fetch(`http://localhost/v1/members/${id}`, { method: "DELETE" })
+  return fetch(`${apiUrl}/v1/members/${id}`, { method: "DELETE" })
     .then(response => {
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -53,7 +54,7 @@ export const deleteMember = (id: number): Promise<boolean> => {
 };
 
 export const addMember = (memberData: MemberData): Promise<boolean> => {
-  return fetch(`http://localhost/v1/members`, {
+  return fetch(`${apiUrl}/v1/members`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json", // リクエストのContent-TypeをJSONに設定

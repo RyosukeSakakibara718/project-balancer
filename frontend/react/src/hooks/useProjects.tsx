@@ -1,5 +1,7 @@
+const apiUrl = import.meta.env.VITE_API_URL;
+
 export const getProjectsAll = (): Promise<[]> => {
-  return fetch("http://localhost/v1/projects")
+  return fetch("${apiUrl}/v1/projects")
     .then(response => {
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -12,7 +14,7 @@ export const getProjectsAll = (): Promise<[]> => {
 };
 
 export const deleteProjects = (id: number): Promise<boolean> => {
-  return fetch(`http://localhost/v1/projects/${id}`, { method: "DELETE" })
+  return fetch(`${apiUrl}/v1/projects/${id}`, { method: "DELETE" })
     .then(response => {
       if (!response.ok) {
         throw new Error("Network response was not ok");
