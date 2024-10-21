@@ -26,7 +26,7 @@ class ProjectAchievementController extends Controller
 
     public function update(ProjectAchievementRequest $request, int $id, UpdateAction $action): JsonResponse
     {
-        $action($request->all(), $id);  // ここで$requestをそのまま渡す
+        $action($request->all(), $id);
 
         return response()->json([], 204);
     }

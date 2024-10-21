@@ -16,9 +16,22 @@ type ProjectArchiveBodyProps = {
   onWorkTimeChange: (
     memberId: number,
     workDate: string,
-    workTime: number,
+    workTime: string,
   ) => void;
   between: optionsArrayProps;
+};
+
+// 08:00:00 や 08:30:00 を小数形式に変換する関数
+const convertWorkTimeToDecimal = (workTime: string): number => {
+  const [hours, minutes] = workTime.split(':').map(Number); // 時間と分を分解して数値に変換
+  return hours + minutes / 60; // 時間と分を小数形式に変換
+};
+
+// 小数形式の workTime を 00:00:00 形式に変換する関数
+const convertDecimalToWorkTime = (decimal: number): string => {
+  const hours = Math.floor(decimal);
+  const minutes = Math.round((decimal - hours) * 60);
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
 };
 
 const ProjectArchiveBody: React.FC<ProjectArchiveBodyProps> = ({
@@ -42,7 +55,7 @@ const ProjectArchiveBody: React.FC<ProjectArchiveBodyProps> = ({
   }, []);
 
   const memberInfo = memberList?.find(
-    item => item.id === member.assignment_member_id,
+    item => item.id === member.member_id,
   );
   const rank = RANK.find(item => item.id === member.position);
 
@@ -101,7 +114,9 @@ const ProjectArchiveBody: React.FC<ProjectArchiveBodyProps> = ({
             <td className="border-l border-gray-300">時間</td>
             {showPeriod.map(item => {
               const workCost = getWorkCost(member, item, between.id);
-              const workTime = workCost ? workCost.work_time : "";
+              const workTime = workCost
+                ? convertWorkTimeToDecimal(workCost.work_time) // 08:00:00 -> 8 のように変換
+                : 0;
               return (
                 <td className="py-[10px]" key={item.day}>
                   <input
@@ -109,11 +124,14 @@ const ProjectArchiveBody: React.FC<ProjectArchiveBodyProps> = ({
                     className="border border-gray-300 w-[70%] h-[32px] rounded"
                     type="number"
                     value={workTime}
+                    step="0.1" // 0.5刻みで変更可能にする
                     onChange={e => {
+                      const decimalWorkTime = Number(e.target.value); // 入力値を小数点に変換
+                      const formattedWorkTime = convertDecimalToWorkTime(decimalWorkTime); // 8 -> 08:00:00 に変換
                       onWorkTimeChange(
-                        member.assignment_member_id,
+                        member.member_id,
                         item.day,
-                        Number(e.target.value),
+                        formattedWorkTime,
                       );
                     }}
                     disabled={between.id !== 1}
@@ -134,7 +152,7 @@ const ProjectArchiveBody: React.FC<ProjectArchiveBodyProps> = ({
 
               // 金額に表示する合計金額
               const amount = calculateAmount(
-                workCost ? workCost.work_time : 0,
+                workCost ? convertWorkTimeToDecimal(workCost.work_time) : 0,
                 item.day,
                 between.id,
                 member,

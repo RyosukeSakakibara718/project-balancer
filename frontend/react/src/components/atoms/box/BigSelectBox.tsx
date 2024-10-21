@@ -1,7 +1,7 @@
-import { optionsArrayProps } from "../../../types/project";
+import { OptionList } from "../../../types/project";
 
 type BigSelectBoxProps = {
-  optionArray: optionsArrayProps[];
+  optionArray: OptionList[];
   labelText?: string;
   handleSelectChange: (value: string) => void;
 };

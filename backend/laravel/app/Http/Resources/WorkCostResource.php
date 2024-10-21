@@ -17,7 +17,6 @@ class WorkCostResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
             'daily_cost' => $this->daily_cost,
             'work_time' => $this->work_time,
             'work_date' => $this->work_date,
