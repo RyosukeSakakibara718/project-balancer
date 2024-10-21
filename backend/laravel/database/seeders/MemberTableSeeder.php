@@ -14,7 +14,6 @@ class MemberTableSeeder extends Seeder
      */
     public function run(): void
     {
-        // 10人のメンバーを作成
-        Member::factory()->count(10)->create();
+        Member::factory()->count(100)->create();
     }
 }

@@ -7,7 +7,6 @@ namespace Database\Seeders;
 use App\Models\Estimation;
 use App\Models\Project;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Carbon;
 
 class EstimationSeeder extends Seeder
 {
@@ -16,19 +15,14 @@ class EstimationSeeder extends Seeder
      */
     public function run(): void
     {
-        // 既存のプロジェクトを取得
-        $projects = Project::all();
+        // 事前に Estimation が紐づいていない Project を取得
+        $projects = Project::doesntHave('estimation')->get();
 
-        foreach ($projects as $project) {
-            // Estimation レコードを作成
-            Estimation::create([
+        // プリフェッチされたプロジェクトに対して Estimation を作成
+        $projects->each(function ($project) {
+            Estimation::factory()->create([
                 'project_id' => $project->id,
-                'order_price' => rand(100000, 1000000), // 受注額をランダムに設定（例：10万〜100万円）
-                'estimate_cost' => rand(50000, 800000), // 見積原価をランダムに設定（例：5万〜80万円）
-                'estimate_person_month' => round(rand(10, 120) / 10, 2), // 見積工数をランダムに設定（例：1.0〜12.0人月）
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
             ]);
-        }
+        });
     }
 }

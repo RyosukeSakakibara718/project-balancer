@@ -188,7 +188,7 @@ class Project extends Model
 
             foreach ($monthlyEstimations as $monthlyEstimation) {
                 // target_month を 'Y-m' の形式に変換
-                $month = Carbon::createFromFormat('Y/m', $monthlyEstimation->target_month)->format('Y-m');
+                $month = Carbon::parse($monthlyEstimation->target_month)->format('Y-m');
 
                 // estimate_person_month と base_cost を掛け合わせてコストを計算
                 $cost = $monthlyEstimation->estimate_cost;

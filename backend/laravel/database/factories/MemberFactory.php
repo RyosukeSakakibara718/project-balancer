@@ -24,11 +24,21 @@ class MemberFactory extends Factory
      */
     public function definition(): array
     {
+        $base_costs = [
+            1 => 400000,
+            2 => 500000,
+            3 => 600000,
+            4 => 700000,
+            5 => 800000,
+        ];
+
+        $rank = fake()->numberBetween(1, 5);
+
         return [
             'name' => fake()->name(),
-            'base_cost' => fake()->numberBetween(400000, 1000000),
-            'rank' => fake()->numberBetween(1, 5),
-            'base_cost_start_date' => fake()->date('Y-m-d'),
+            'base_cost' => $base_costs[$rank],
+            'rank' => $rank,
+            'base_cost_start_date' => '2024-06-01',
             'created_at' => now(),
             'updated_at' => now(),
         ];

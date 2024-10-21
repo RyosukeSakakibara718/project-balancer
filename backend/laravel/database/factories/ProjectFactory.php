@@ -6,6 +6,7 @@ namespace Database\Factories;
 
 use App\Models\Project;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Carbon\Carbon;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Project>
@@ -24,15 +25,17 @@ class ProjectFactory extends Factory
      */
     public function definition(): array
     {
-        // Project->estimations&(assignmentMember->assignment_member_monthly_estimations)&outsources
+        $companyName = fake()->company();
+        $startDate = $this->faker->dateTimeBetween('2024-01-01', 'now')->format('Y-m-d');
+        $endDate = Carbon::parse($startDate)->addMonths(rand(3, 12))->format('Y-m-d');
         return [
-            'freee_project_code' => $this->faker->regexify('PRJ[0-9]{5}'),
-            'name' => $this->faker->words(3, true),
-            'company_name' => fake()->company(),
+            'freee_project_code' => $this->faker->regexify('[0-9]{2}-[0-9]{2}-[0-9]{5}'),
+            'name' => $companyName. 'プロジェクト',
+            'company_name' => $companyName,
             'contract' => $this->faker->numberBetween(1, 3),
             'phase' => $this->faker->numberBetween(1, 5),
-            'start_date' => $this->faker->date('Y-m-d', 'now'),
-            'end_date' => $this->faker->date('Y-m-d', '+1 year'),
+            'start_date' => $startDate,
+            'end_date' => $endDate,
             'created_at' => now(),
             'updated_at' => now(),
         ];

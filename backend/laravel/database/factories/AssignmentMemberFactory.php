@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Models\AssignmentMember;
+use App\Models\Project;
+use App\Models\Member;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Constants\PositionConstants;
 
 class AssignmentMemberFactory extends Factory
 {
@@ -13,11 +16,16 @@ class AssignmentMemberFactory extends Factory
 
     public function definition()
     {
+        $positions = [
+            PositionConstants::POSITION_MEMBER,
+            PositionConstants::POSITION_MGR,
+        ];
+
         return [
-            'project_id' => \App\Models\Project::factory(),
-            'member_id' => \App\Models\Member::factory(),
-            'position' => $this->faker->numberBetween(1, 5),
-            'estimate_total_person_month' => $this->faker->randomFloat(2, 1, 12),
+            'project_id' => Project::inRandomOrder()->first()->id,
+            'member_id' => Member::inRandomOrder()->first()->id,
+            'position' => $this->faker->randomElement($positions),
+            'estimate_total_person_month' => $this->faker->randomElement(range(2.0, 8.0, 0.1)),
             'created_at' => now(),
             'updated_at' => now(),
         ];

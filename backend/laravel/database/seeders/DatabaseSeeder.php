@@ -6,7 +6,6 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
-use App\Models\WorkCost;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -19,10 +18,12 @@ class DatabaseSeeder extends Seeder
         $this->call([
             ProjectTableSeeder::class,
             MemberTableSeeder::class,
-            AssignmentMemberTableSeeder::class,
-            CommentSeeder::class,
             EstimationSeeder::class,
-            WorkCostTableSeeder::class
+            AssignmentMemberTableSeeder::class,
+            AssignmentMemberMonthlyEstimationSeeder::class,
+            CommentSeeder::class,
+            OutsourceSeeder::class,
+            WorkCostSeeder::class,
         ]);
     }
 }
